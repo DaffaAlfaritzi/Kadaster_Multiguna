@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebGIS Kadaster Multiguna - Desa Way Hui</title>
+
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Remix Icon -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+
+    <!-- Leaflet CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Container Peta -->
+    <div id="map"></div>
+
+    <!-- 1. TOP HEADER BAR (TEMA PASTEL HIJAU GRADASI) -->
+    <header class="pastel-panel top-header">
+      <div class="brand-section">
+        <div class="brand-logo-box">
+          <i class="ri-compass-3-line"></i>
+        </div>
+        <span class="brand-title"
+          >KADASTER<span class="highlight">MULTIGUNA</span></span
+        >
+      </div>
+
+      <nav class="top-nav">
+        <a href="#" class="nav-link">RINGKASAN</a>
+        <a href="#" class="nav-link active">PETA BIDANG</a>
+        <a href="#" class="nav-link">MODEL LOD</a>
+      </nav>
+
+      <div class="header-meta">
+        <span class="meta-item"
+          ><i class="ri-map-pin-2-fill"></i> WAY HUI, LAMPUNG SELATAN</span
+        >
+        <span class="meta-item" id="live-clock"
+          ><i class="ri-time-fill"></i> --:-- WIB</span
+        >
+      </div>
+    </header>
+
+    <!-- SUB-HEADER: FILTER LEVEL OF DETAIL (LOD) -->
+    <div class="pastel-panel scale-switcher">
+      <button class="scale-btn active" data-lod="lod0">2D Tapak (LOD-0)</button>
+      <button class="scale-btn" data-lod="lod1">Prisma 3D (LOD-1)</button>
+      <button class="scale-btn" data-lod="lod2">Detail Atap (LOD-2)</button>
+    </div>
+
+    <!-- 2. LEFT SIDEBAR (TEMA PASTEL HIJAU GRADASI - BISA IKON SAJA / IKON + TEKS) -->
+    <aside class="pastel-panel left-sidebar collapsed" id="sidebar">
+      <button
+        class="toggle-sidebar-btn"
+        id="toggleSidebar"
+        title="Buka/Tutup Panel Menu"
+      >
+        <i class="ri-arrow-right-s-line" id="toggleIcon"></i>
+      </button>
+
+      <div class="sidebar-header">
+        <div class="window-dots">
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+        </div>
+        <div class="sidebar-brand-text">GEOMATIKA ITERA</div>
+      </div>
+
+      <div class="sidebar-user">
+        <div class="user-avatar">KM</div>
+        <div class="user-info">
+          <div class="user-name">Kadaster Multiguna</div>
+          <div class="user-role">Visualisasi Bangunan & Persil</div>
+        </div>
+      </div>
+
+      <div class="menu-label">NAVIGASI LAYER</div>
+
+      <ul class="sidebar-menu">
+        <li
+          class="menu-item active"
+          id="btnZoomPersil"
+          title="Fokus ke Bangunan Persil (Terdaftar)"
+        >
+          <i class="ri-focus-3-line"></i>
+          <span class="menu-text">Fokus Bangunan Persil</span>
+        </li>
+        <li
+          class="menu-item"
+          id="btnZoomAll"
+          title="Lihat Seluruh Sebaran Bangunan"
+        >
+          <i class="ri-fullscreen-line"></i>
+          <span class="menu-text">Semua Bangunan</span>
+        </li>
+        <li
+          class="menu-item"
+          id="btnTogglePersil"
+          title="Tampilkan/Sembunyikan Bangunan Ber-NIB"
+        >
+          <i class="ri-building-4-line"></i>
+          <span class="menu-text">Bangunan Persil</span>
+          <span class="badge" id="persilCountBadge">0</span>
+        </li>
+        <li
+          class="menu-item"
+          id="btnToggleBase"
+          title="Tampilkan/Sembunyikan Bangunan Sementara"
+        >
+          <i class="ri-community-line"></i>
+          <span class="menu-text">Bangunan Sementara</span>
+          <span class="badge secondary" id="baseCountBadge">0</span>
+        </li>
+        <li
+          class="menu-item"
+          id="btnSwitchBasemap"
+          title="Ganti Peta Dasar (Satelit / Peta Terang)"
+        >
+          <i class="ri-earth-line"></i>
+          <span class="menu-text">Ganti Basemap</span>
+        </li>
+      </ul>
+
+      <ul class="sidebar-menu bottom-menu">
+        <li class="menu-item" id="btnResetSelection" title="Bersihkan Pilihan">
+          <i class="ri-refresh-line"></i>
+          <span class="menu-text">Reset Sorotan</span>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- 3. FLOATING DETAIL CARD (TETAP EFEK GLASS TRANSPARAN) -->
+    <section class="floating-inspector" id="inspectorPanel">
+      <div class="glass-popup-card detail-card corner-brackets">
+        <div class="preview-box">
+          <div class="wireframe-placeholder">
+            <i class="ri-building-2-line" id="previewIcon"></i>
+            <span id="previewTag">KLIK BANGUNAN DI PETA</span>
+          </div>
+          <button class="btn-detail-corner" id="btnZoomSelected">
+            Perbesar <i class="ri-arrow-right-up-line"></i>
+          </button>
+        </div>
+
+        <div class="object-title-row">
+          <span class="status-dot" id="detailDot"></span>
+          <span class="status-label" id="detailBadge">MENUNGGU PILIHAN</span>
+          <h3 class="object-id" id="detailNIB">NIB: -</h3>
+        </div>
+
+        <div class="object-stats" id="statsContainer">
+          <div class="stat-row">
+            <span class="stat-name">ID Objek</span>
+            <span class="stat-val mono" id="detailId">-</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Nomor Induk (NIB)</span>
+            <span class="stat-val mono" id="detailNibFull">-</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Tipe Hak</span>
+            <span class="stat-val highlight-hak" id="detailTipeHak">-</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-name">Luas Bangunan</span>
+            <span class="stat-val mono" id="detailArea">- m²</span>
+          </div>
+        </div>
+
+        <div class="card-tabs">
+          <button class="card-tab active">INFO KADASTER</button>
+          <button class="card-tab">GEOMETRI 2D</button>
+        </div>
+      </div>
+
+      <!-- Indikator Integrasi Data (Glass) -->
+      <div class="glass-popup-card readiness-card corner-brackets">
+        <div class="bars-container">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+          <span class="dim"></span><span class="dim"></span
+          ><span class="dim"></span><span class="dim"></span
+          ><span class="dim"></span>
+        </div>
+        <div class="readiness-info">
+          <span class="mono" id="completenessPct">0%</span>
+          <p id="completenessText">MEMUAT DATA PERSIL...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. BOTTOM DOCK PANEL (TEMA PASTEL HIJAU GRADASI) -->
+    <footer class="bottom-dock">
+      <div class="dock-tabs">
+        <button class="dock-tab active">Daftar Bangunan Persil (NIB)</button>
+        <button class="dock-tab">Statistik Luas</button>
+        <button class="dock-tab">Keterangan Layer</button>
+      </div>
+
+      <div class="pastel-panel dock-content">
+        <button class="scroll-btn" id="scrollLeft">
+          <i class="ri-arrow-left-s-line"></i>
+        </button>
+
+        <div class="unit-cards-container" id="unitCardsList">
+          <div class="unit-card">
+            <span class="status-dot"></span>
+            <span class="unit-code"
+              >Memuat data bangunan_persil.geojson...</span
+            >
+          </div>
+        </div>
+
+        <button class="scroll-btn" id="scrollRight">
+          <i class="ri-arrow-right-s-line"></i>
+        </button>
+      </div>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Custom JS -->
+    <script src="script.js"></script>
+  </body>
+</html>
