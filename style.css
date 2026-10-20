@@ -2,335 +2,328 @@
    RESET & VARIABEL TEMA (PASTEL HIJAU GRADASI + POP-UP GLASS)
    ========================================================================== */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  user-select: none;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 :root {
-  /* 1. Palet Utama: Pastel Hijau Gradasi Cerah (Untuk Header, Sidebar, Dock) */
-  --pastel-gradient: linear-gradient(
-    135deg,
-    rgba(240, 253, 244, 0.95) 0%,
-    rgba(209, 250, 229, 0.92) 55%,
-    rgba(167, 243, 208, 0.9) 100%
-  );
-  --pastel-border: #6ee7b7;
-  --pastel-shadow: 0 8px 28px rgba(6, 78, 59, 0.15);
+    /* 1. Palet Utama: Pastel Hijau Gradasi Cerah */
+    --pastel-gradient: linear-gradient(135deg, rgba(240, 253, 244, 0.95) 0%, rgba(209, 250, 229, 0.92) 55%, rgba(167, 243, 208, 0.90) 100%);
+    --pastel-border: #6ee7b7;
+    --pastel-shadow: 0 8px 28px rgba(6, 78, 59, 0.15);
+    
+    --text-dark: #064e3b;
+    --text-medium: #047857;
+    --text-soft: #059669;
+    
+    --emerald-primary: #10b981;
+    --emerald-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --pastel-card-bg: rgba(255, 255, 255, 0.78);
+    --pastel-card-hover: #ffffff;
 
-  --text-dark: #064e3b; /* Hijau zamrud sangat gelap untuk teks utama */
-  --text-medium: #047857; /* Hijau sedang untuk sub-teks */
-  --text-soft: #059669;
+    /* 2. Palet Khusus Pop-up & Floating Card: Efek Glass Transparan */
+    --glass-popup-bg: linear-gradient(135deg, rgba(15, 23, 42, 0.52) 0%, rgba(6, 78, 59, 0.42) 100%);
+    --glass-popup-border: rgba(255, 255, 255, 0.45);
+    --glass-popup-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
 
-  --emerald-primary: #10b981;
-  --emerald-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  --pastel-card-bg: rgba(255, 255, 255, 0.75);
-  --pastel-card-hover: #ffffff;
-
-  /* 2. Palet Khusus Pop-up & Floating Card: Efek Glass Transparan */
-  --glass-popup-bg: linear-gradient(
-    135deg,
-    rgba(15, 23, 42, 0.48) 0%,
-    rgba(6, 78, 59, 0.38) 100%
-  );
-  --glass-popup-border: rgba(255, 255, 255, 0.42);
-  --glass-popup-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
-
-  --font-sans: "Inter", sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+    --font-sans: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
 }
 
-body,
-html {
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  font-family: var(--font-sans);
-  background-color: #e2e8f0;
+body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font-sans);
+    background-color: #e2e8f0;
 }
 
 #map {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
+    position: absolute;
+    inset: 0;
+    z-index: 1;
 }
 
 /* ==========================================================================
    PANEL TEMA PASTEL HIJAU GRADASI (UI NAVIGASI UTAMA)
    ========================================================================== */
 .pastel-panel {
-  background: var(--pastel-gradient);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1.5px solid var(--pastel-border);
-  box-shadow: var(--pastel-shadow);
-  color: var(--text-dark);
-  z-index: 10;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    background: var(--pastel-gradient);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1.5px solid var(--pastel-border);
+    box-shadow: var(--pastel-shadow);
+    color: var(--text-dark);
+    z-index: 10;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 /* ==========================================================================
-   PANEL GLASS TRANSPARAN (KHUSUS POP-UP PETA & KARTU INFORMASI)
+   PANEL GLASS TRANSPARAN (KHUSUS POP-UP PETA & KARTU INFORMASI DESKTOP)
    ========================================================================== */
 .glass-popup-card {
-  background: var(--glass-popup-bg);
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(7px);
-  border: 1px solid var(--glass-popup-border);
-  box-shadow: var(--glass-popup-shadow);
-  color: #ffffff;
-  z-index: 10;
+    background: var(--glass-popup-bg);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    border: 1px solid var(--glass-popup-border);
+    box-shadow: var(--glass-popup-shadow);
+    color: #ffffff;
+    z-index: 10;
 }
 
 /* Styling Pop-up Leaflet agar Menjadi Glass Transparan */
 .leaflet-popup-content-wrapper {
-  background: linear-gradient(
-    135deg,
-    rgba(15, 23, 42, 0.55) 0%,
-    rgba(16, 185, 129, 0.32) 100%
-  ) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 12px !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important;
-  color: #ffffff !important;
-  padding: 2px;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.62) 0%, rgba(16, 185, 129, 0.38) 100%) !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.48);
+    border-radius: 12px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important;
+    color: #ffffff !important;
+    padding: 2px;
 }
 
 .leaflet-popup-tip {
-  background: rgba(15, 23, 42, 0.6) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(15, 23, 42, 0.65) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .leaflet-popup-close-button {
-  color: #ffffff !important;
-  font-size: 18px !important;
-  top: 8px !important;
-  right: 10px !important;
+    color: #ffffff !important;
+    font-size: 18px !important;
+    top: 8px !important;
+    right: 10px !important;
 }
 
 .popup-glass-body {
-  min-width: 210px;
-  padding: 6px 4px;
-  font-family: var(--font-sans);
+    min-width: 200px;
+    padding: 4px 2px;
+    font-family: var(--font-sans);
 }
 
 .popup-badge {
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 20px;
-  margin-bottom: 6px;
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-bottom: 5px;
 }
 
 .popup-badge.registered {
-  background: rgba(52, 211, 153, 0.25);
-  border: 1px solid #6ee7b7;
-  color: #a7f3d0;
+    background: rgba(52, 211, 153, 0.25);
+    border: 1px solid #6ee7b7;
+    color: #a7f3d0;
 }
 
 .popup-badge.unregistered {
-  background: rgba(251, 191, 36, 0.25);
-  border: 1px solid #fcd34d;
-  color: #fde68a;
+    background: rgba(251, 191, 36, 0.25);
+    border: 1px solid #fcd34d;
+    color: #fde68a;
 }
 
 .popup-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 7px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    font-family: var(--font-mono);
 }
 
 .popup-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.78rem;
-  margin-bottom: 5px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    margin-bottom: 4px;
+    gap: 12px;
 }
 
 .popup-row span:first-child {
-  color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.78);
 }
 
 .popup-row span:last-child {
-  font-weight: 600;
-  font-family: var(--font-mono);
+    font-weight: 600;
+    font-family: var(--font-mono);
 }
 
 .popup-empty-msg {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.4;
-  margin-top: 4px;
+    font-size: 0.76rem;
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 1.4;
+    margin-top: 4px;
 }
 
-/* Siku Sudut HUD */
 .corner-brackets {
-  position: relative;
+    position: relative;
 }
 .corner-brackets::before,
 .corner-brackets::after {
-  content: "";
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-color: #6ee7b7;
-  border-style: solid;
-  pointer-events: none;
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-color: #6ee7b7;
+    border-style: solid;
+    pointer-events: none;
 }
 .corner-brackets::before {
-  top: -1px;
-  left: -1px;
-  border-width: 2px 0 0 2px;
+    top: -1px;
+    left: -1px;
+    border-width: 2px 0 0 2px;
 }
 .corner-brackets::after {
-  bottom: -1px;
-  right: -1px;
-  border-width: 0 2px 2px 0;
+    bottom: -1px;
+    right: -1px;
+    border-width: 0 2px 2px 0;
 }
 
 .mono {
-  font-family: var(--font-mono);
+    font-family: var(--font-mono);
 }
 
 /* ==========================================================================
-   1. TOP HEADER BAR & SCALE SWITCHER
+   1. TOP HEADER BAR & SCALE SWITCHER (DESKTOP)
    ========================================================================== */
 .top-header {
-  position: absolute;
-  top: 14px;
-  left: 88px;
-  right: 18px;
-  height: 54px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 22px;
+    position: absolute;
+    top: 14px;
+    left: 88px;
+    right: 18px;
+    height: 54px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 22px;
 }
 
 .brand-section {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    white-space: nowrap;
 }
 
 .brand-logo-box {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: var(--emerald-gradient);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--emerald-gradient);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
 }
 
 .brand-title .highlight {
-  color: var(--emerald-primary);
-  margin-left: 4px;
+    color: var(--emerald-primary);
+    margin-left: 4px;
 }
 
 .top-nav {
-  display: flex;
-  gap: 24px;
-  height: 100%;
-  align-items: center;
+    display: flex;
+    gap: 24px;
+    height: 100%;
+    align-items: center;
 }
 
 .nav-link {
-  color: var(--text-medium);
-  text-decoration: none;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.8px;
-  padding: 16px 6px;
-  border-bottom: 3px solid transparent;
-  transition: 0.2s;
+    color: var(--text-medium);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    padding: 16px 6px;
+    border-bottom: 3px solid transparent;
+    transition: 0.2s;
+    white-space: nowrap;
 }
 
 .nav-link:hover,
 .nav-link.active {
-  color: var(--text-dark);
-  border-bottom-color: var(--emerald-primary);
+    color: var(--text-dark);
+    border-bottom-color: var(--emerald-primary);
 }
 
 .header-meta {
-  display: flex;
-  gap: 18px;
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
-  color: var(--text-medium);
-  font-weight: 600;
+    display: flex;
+    gap: 18px;
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    color: var(--text-medium);
+    font-weight: 600;
+    white-space: nowrap;
 }
 
 .meta-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .scale-switcher {
-  position: absolute;
-  top: 78px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  border-radius: 10px;
-  padding: 4px;
-  gap: 4px;
+    position: absolute;
+    top: 78px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    border-radius: 10px;
+    padding: 4px;
+    gap: 4px;
+    z-index: 10;
 }
 
 .scale-btn {
-  background: transparent;
-  border: none;
-  color: var(--text-medium);
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 500;
-  padding: 6px 14px;
-  border-radius: 7px;
-  cursor: pointer;
-  transition: 0.2s;
+    background: transparent;
+    border: none;
+    color: var(--text-medium);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: 0.2s;
+    white-space: nowrap;
 }
 
 .scale-btn.active,
 .scale-btn:hover {
-  background: var(--emerald-gradient);
-  color: #ffffff;
-  font-weight: 600;
+    background: var(--emerald-gradient);
+    color: #ffffff;
+    font-weight: 600;
 }
 
 /* ==========================================================================
-   2. LEFT SIDEBAR (PASTEL HIJAU GRADASI)
+   2. LEFT SIDEBAR (DESKTOP)
    ========================================================================== */
 .left-sidebar {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  bottom: 14px;
-  width: 245px;
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  padding: 16px 12px;
-  z-index: 20;
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    bottom: 14px;
+    width: 245px;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    padding: 16px 12px;
+    z-index: 30;
 }
 
 .left-sidebar.collapsed {
-  width: 62px;
-  padding: 16px 8px;
+    width: 62px;
+    padding: 16px 8px;
 }
 
 .left-sidebar.collapsed .sidebar-brand-text,
@@ -338,482 +331,661 @@ html {
 .left-sidebar.collapsed .menu-label,
 .left-sidebar.collapsed .menu-text,
 .left-sidebar.collapsed .badge {
-  display: none;
+    display: none;
 }
 
 .left-sidebar.collapsed .window-dots,
 .left-sidebar.collapsed .sidebar-user,
 .left-sidebar.collapsed .menu-item {
-  justify-content: center;
+    justify-content: center;
 }
 
 .toggle-sidebar-btn {
-  position: absolute;
-  top: 38px;
-  right: -13px;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--emerald-gradient);
-  border: 2px solid #ffffff;
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(6, 78, 59, 0.25);
-  transition: 0.25s;
+    position: absolute;
+    top: 38px;
+    right: -13px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--emerald-gradient);
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(6, 78, 59, 0.25);
+    transition: 0.25s;
 }
 
 .toggle-sidebar-btn:hover {
-  transform: scale(1.12);
+    transform: scale(1.12);
 }
 
 .sidebar-header {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(16, 185, 129, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .window-dots {
-  display: flex;
-  gap: 6px;
+    display: flex;
+    gap: 6px;
 }
 
 .dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
 }
-.dot.red {
-  background: #f87171;
-}
-.dot.yellow {
-  background: #fbbf24;
-}
-.dot.green {
-  background: #34d399;
-}
+.dot.red { background: #f87171; }
+.dot.yellow { background: #fbbf24; }
+.dot.green { background: #34d399; }
 
 .sidebar-brand-text {
-  font-weight: 800;
-  font-size: 0.82rem;
-  letter-spacing: 1.2px;
-  color: var(--text-dark);
+    font-weight: 800;
+    font-size: 0.82rem;
+    letter-spacing: 1.2px;
+    color: var(--text-dark);
 }
 
 .sidebar-user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 4px;
-  border-bottom: 1px solid rgba(16, 185, 129, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 4px;
+    border-bottom: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .user-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: var(--emerald-gradient);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 0.8rem;
-  flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: var(--emerald-gradient);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.8rem;
+    flex-shrink: 0;
 }
 
 .user-name {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text-dark);
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-dark);
 }
 
 .user-role {
-  font-size: 0.68rem;
-  color: var(--text-medium);
+    font-size: 0.68rem;
+    color: var(--text-medium);
 }
 
 .menu-label {
-  font-size: 0.68rem;
-  letter-spacing: 1px;
-  color: var(--text-medium);
-  margin: 14px 0 6px 8px;
-  font-weight: 700;
+    font-size: 0.68rem;
+    letter-spacing: 1px;
+    color: var(--text-medium);
+    margin: 14px 0 6px 8px;
+    font-weight: 700;
 }
 
 .sidebar-menu {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
 
 .bottom-menu {
-  margin-top: auto;
-  padding-top: 12px;
-  border-top: 1px solid rgba(16, 185, 129, 0.25);
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .menu-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  color: var(--text-dark);
-  font-size: 0.83rem;
-  font-weight: 500;
-  transition: 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    color: var(--text-dark);
+    font-size: 0.83rem;
+    font-weight: 500;
+    transition: 0.2s;
 }
 
 .menu-item i {
-  font-size: 1.2rem;
-  color: var(--text-soft);
+    font-size: 1.2rem;
+    color: var(--text-soft);
 }
 
 .menu-item:hover {
-  background: var(--pastel-card-hover);
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+    background: var(--pastel-card-hover);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
 }
 
 .menu-item.active {
-  background: var(--emerald-gradient);
-  color: #ffffff;
-  font-weight: 600;
+    background: var(--emerald-gradient);
+    color: #ffffff;
+    font-weight: 600;
 }
 
 .menu-item.active i {
-  color: #ffffff;
+    color: #ffffff;
 }
 
 .badge {
-  margin-left: auto;
-  background: #065f46;
-  color: #ffffff;
-  font-size: 0.68rem;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 12px;
+    margin-left: auto;
+    background: #065f46;
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 12px;
 }
 
 .badge.secondary {
-  background: #64748b;
+    background: #64748b;
 }
 
 /* ==========================================================================
-   3. FLOATING INSPECTOR CARD (TETAP EFEK GLASS TRANSPARAN)
+   3. FLOATING INSPECTOR CARD (HANYA TAMPIL DI DESKTOP/TABLET BESAR)
    ========================================================================== */
 .floating-inspector {
-  position: absolute;
-  top: 132px;
-  left: 92px;
-  width: 275px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  z-index: 10;
-  transition: left 0.3s ease;
+    position: absolute;
+    top: 132px;
+    left: 92px;
+    width: 275px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 10;
+    transition: left 0.3s ease;
 }
 
 .left-sidebar:not(.collapsed) ~ .floating-inspector {
-  left: 273px;
+    left: 273px;
 }
 
 .detail-card {
-  padding: 14px;
-  border-radius: 12px;
+    padding: 14px;
+    border-radius: 12px;
 }
 
 .preview-box {
-  height: 105px;
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.38);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
+    height: 105px;
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.38);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
 }
 
 .wireframe-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  color: #6ee7b7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: #6ee7b7;
 }
 
 .wireframe-placeholder i {
-  font-size: 2.4rem;
+    font-size: 2.4rem;
 }
 
 .wireframe-placeholder span {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.8px;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.8px;
 }
 
 .btn-detail-corner {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  color: #fff;
-  font-size: 0.7rem;
-  padding: 3px 8px;
-  border-radius: 5px;
-  cursor: pointer;
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .btn-detail-corner:hover {
-  background: var(--emerald-primary);
+    background: var(--emerald-primary);
 }
 
 .object-title-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
 }
 
 .status-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background: #34d399;
-  box-shadow: 0 0 8px #34d399;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 8px #34d399;
+    flex-shrink: 0;
 }
 
 .status-label {
-  font-size: 0.65rem;
-  font-family: var(--font-mono);
-  background: rgba(52, 211, 153, 0.22);
-  padding: 2px 7px;
-  border-radius: 4px;
-  color: #a7f3d0;
-  font-weight: 600;
+    font-size: 0.65rem;
+    font-family: var(--font-mono);
+    background: rgba(52, 211, 153, 0.22);
+    padding: 2px 7px;
+    border-radius: 4px;
+    color: #a7f3d0;
+    font-weight: 600;
 }
 
 .object-id {
-  font-family: var(--font-mono);
-  font-size: 0.92rem;
-  margin-left: auto;
-  color: #ffffff;
+    font-family: var(--font-mono);
+    font-size: 0.92rem;
+    margin-left: auto;
+    color: #ffffff;
 }
 
 .object-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
 }
 
 .stat-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
 }
 
 .stat-name {
-  color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.75);
 }
 
 .stat-val {
-  font-weight: 600;
-  color: #ffffff;
+    font-weight: 600;
+    color: #ffffff;
 }
 
 .highlight-hak {
-  color: #fcd34d;
+    color: #fcd34d;
 }
 
 .card-tabs {
-  display: flex;
-  gap: 6px;
+    display: flex;
+    gap: 6px;
 }
 
 .card-tab {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid transparent;
-  color: rgba(255, 255, 255, 0.8);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  padding: 6px;
-  border-radius: 5px;
-  cursor: pointer;
+    flex: 1;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid transparent;
+    color: rgba(255, 255, 255, 0.8);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    padding: 6px;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .card-tab.active {
-  background: rgba(16, 185, 129, 0.35);
-  border-color: #6ee7b7;
-  color: #fff;
-  font-weight: 600;
+    background: rgba(16, 185, 129, 0.35);
+    border-color: #6ee7b7;
+    color: #fff;
+    font-weight: 600;
 }
 
 .readiness-card {
-  padding: 12px 14px;
-  border-radius: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
 }
 
 .bars-container {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 8px;
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
 }
 
 .bars-container span {
-  flex: 1;
-  height: 14px;
-  background: #6ee7b7;
-  border-radius: 2px;
+    flex: 1;
+    height: 14px;
+    background: #6ee7b7;
+    border-radius: 2px;
 }
 
 .bars-container span.dim {
-  background: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.25);
 }
 
 .readiness-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.65rem;
-  color: rgba(255, 255, 255, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.85);
 }
 
 /* ==========================================================================
-   4. BOTTOM DOCK PANEL (PASTEL HIJAU GRADASI)
+   4. BOTTOM DOCK PANEL (DESKTOP)
    ========================================================================== */
 .bottom-dock {
-  position: absolute;
-  bottom: 14px;
-  left: 88px;
-  right: 18px;
-  z-index: 10;
-  transition: left 0.3s ease;
+    position: absolute;
+    bottom: 14px;
+    left: 88px;
+    right: 18px;
+    z-index: 10;
+    transition: left 0.3s ease;
 }
 
 .left-sidebar:not(.collapsed) ~ .bottom-dock {
-  left: 270px;
+    left: 270px;
 }
 
 .dock-tabs {
-  display: flex;
-  gap: 6px;
-  margin-bottom: -2px;
-  padding-left: 12px;
+    display: flex;
+    gap: 6px;
+    margin-bottom: -2px;
+    padding-left: 12px;
 }
 
 .dock-tab {
-  background: rgba(209, 250, 229, 0.85);
-  border: 1.5px solid var(--pastel-border);
-  border-bottom: none;
-  color: var(--text-medium);
-  font-family: var(--font-mono);
-  font-size: 0.74rem;
-  padding: 7px 16px;
-  border-radius: 10px 10px 0 0;
-  cursor: pointer;
+    background: rgba(209, 250, 229, 0.88);
+    border: 1.5px solid var(--pastel-border);
+    border-bottom: none;
+    color: var(--text-medium);
+    font-family: var(--font-mono);
+    font-size: 0.74rem;
+    padding: 7px 16px;
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+    white-space: nowrap;
 }
 
 .dock-tab.active {
-  background: var(--emerald-gradient);
-  color: #ffffff;
-  font-weight: 600;
+    background: var(--emerald-gradient);
+    color: #ffffff;
+    font-weight: 600;
 }
 
 .dock-content {
-  height: 68px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  padding: 0 10px;
-  gap: 10px;
+    height: 68px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 10px;
 }
 
 .unit-cards-container {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  flex: 1;
-  padding: 6px 2px;
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    flex: 1;
+    padding: 6px 2px;
 }
 
 .unit-cards-container::-webkit-scrollbar {
-  display: none;
+    display: none;
 }
 
 .unit-card {
-  background: var(--pastel-card-bg);
-  border: 1px solid var(--pastel-border);
-  padding: 9px 14px;
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 195px;
-  cursor: pointer;
-  color: var(--text-dark);
-  transition: 0.2s;
+    background: var(--pastel-card-bg);
+    border: 1px solid var(--pastel-border);
+    padding: 9px 14px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 195px;
+    cursor: pointer;
+    color: var(--text-dark);
+    transition: 0.2s;
 }
 
 .unit-card:hover,
 .unit-card.active {
-  background: var(--emerald-gradient);
-  color: #ffffff;
-  border-color: #059669;
-  transform: translateY(-2px);
+    background: var(--emerald-gradient);
+    color: #ffffff;
+    border-color: #059669;
+    transform: translateY(-2px);
 }
 
 .unit-code {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  font-weight: 600;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    white-space: nowrap;
 }
 
 .unit-arrow {
-  margin-left: auto;
-  font-size: 0.9rem;
+    margin-left: auto;
+    font-size: 0.9rem;
 }
 
 .scroll-btn {
-  background: var(--pastel-card-bg);
-  border: 1px solid var(--pastel-border);
-  color: var(--text-dark);
-  width: 30px;
-  height: 42px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1.1rem;
+    background: var(--pastel-card-bg);
+    border: 1px solid var(--pastel-border);
+    color: var(--text-dark);
+    width: 30px;
+    height: 42px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    flex-shrink: 0;
 }
 
 .scroll-btn:hover {
-  background: var(--emerald-gradient);
-  color: #ffffff;
+    background: var(--emerald-gradient);
+    color: #ffffff;
 }
 
 /* Kontrol Zoom Kanan Bawah */
 .leaflet-bottom.leaflet-right {
-  bottom: 110px;
-  right: 16px;
+    bottom: 110px;
+    right: 16px;
 }
 
 .leaflet-bar a {
-  background: var(--pastel-gradient) !important;
-  color: var(--text-dark) !important;
-  border: 1px solid var(--pastel-border) !important;
-  font-weight: bold;
+    background: var(--pastel-gradient) !important;
+    color: var(--text-dark) !important;
+    border: 1px solid var(--pastel-border) !important;
+    font-weight: bold;
 }
 
 .leaflet-bar a:hover {
-  background: var(--emerald-gradient) !important;
-  color: #ffffff !important;
+    background: var(--emerald-gradient) !important;
+    color: #ffffff !important;
+}
+
+/* ==========================================================================
+   5. RESPONSIVE MOBILE & LAYAR KECIL (MAX-WIDTH: 768PX)
+   ========================================================================== */
+@media (max-width: 768px) {
+    /* A. Sembunyikan Box Informasi Tengah di HP (Cukup gunakan Pop-up Glass saat diklik) */
+    .floating-inspector {
+        display: none !important;
+    }
+
+    /* B. Perkecil Sidebar Kiri & Jadikan Overlay Saat Dibuka */
+    .left-sidebar {
+        top: 8px;
+        left: 8px;
+        bottom: 8px;
+        width: 215px;
+        padding: 12px 10px;
+        border-radius: 12px;
+        z-index: 40; /* Di atas semua elemen saat di-expand */
+    }
+
+    .left-sidebar.collapsed {
+        width: 46px;
+        padding: 12px 6px;
+    }
+
+    .toggle-sidebar-btn {
+        top: 30px;
+        right: -11px;
+        width: 22px;
+        height: 22px;
+        font-size: 0.85rem;
+    }
+
+    .user-avatar {
+        width: 28px;
+        height: 28px;
+        font-size: 0.7rem;
+    }
+
+    .menu-item {
+        padding: 8px 10px;
+        font-size: 0.76rem;
+        gap: 10px;
+    }
+
+    .menu-item i {
+        font-size: 1.05rem;
+    }
+
+    /* C. Perkecil Top Header agar Tidak Terpotong */
+    .top-header {
+        top: 8px;
+        left: 62px;
+        right: 8px;
+        height: 42px;
+        padding: 0 10px;
+        border-radius: 10px;
+        overflow-x: auto;
+        gap: 10px;
+    }
+
+    .top-header::-webkit-scrollbar {
+        display: none;
+    }
+
+    .brand-logo-box {
+        width: 26px;
+        height: 26px;
+        font-size: 0.95rem;
+        border-radius: 6px;
+    }
+
+    .brand-section {
+        font-size: 0.75rem;
+        gap: 6px;
+    }
+
+    .top-nav {
+        gap: 10px;
+    }
+
+    .nav-link {
+        font-size: 0.65rem;
+        padding: 10px 3px;
+        letter-spacing: 0.4px;
+    }
+
+    /* Sembunyikan teks lokasi/jam di layar HP yang sempit agar menu utama muat */
+    .header-meta {
+        display: none;
+    }
+
+    /* D. Perkecil Tombol Pemilih Skala/LOD agar Satu Baris Rapi */
+    .scale-switcher {
+        top: 56px;
+        left: 62px;
+        right: 8px;
+        transform: none;
+        justify-content: space-between;
+        padding: 3px;
+        border-radius: 8px;
+    }
+
+    .scale-btn {
+        flex: 1;
+        font-size: 0.62rem;
+        padding: 5px 4px;
+        text-align: center;
+        border-radius: 6px;
+    }
+
+    /* E. Perkecil Bottom Dock & Tab Bawah */
+    .bottom-dock {
+        bottom: 8px;
+        left: 62px;
+        right: 8px;
+    }
+
+    /* Jangan geser bottom-dock saat sidebar dibuka di HP (biarkan sidebar jadi overlay) */
+    .left-sidebar:not(.collapsed) ~ .bottom-dock {
+        left: 62px;
+    }
+
+    .dock-tabs {
+        gap: 4px;
+        padding-left: 6px;
+        overflow-x: auto;
+    }
+
+    .dock-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .dock-tab {
+        font-size: 0.62rem;
+        padding: 5px 10px;
+        border-radius: 7px 7px 0 0;
+    }
+
+    .dock-content {
+        height: 48px;
+        padding: 0 6px;
+        gap: 6px;
+        border-radius: 10px;
+    }
+
+    .unit-card {
+        min-width: 130px;
+        padding: 6px 10px;
+        gap: 6px;
+        border-radius: 7px;
+    }
+
+    .unit-code {
+        font-size: 0.68rem;
+    }
+
+    .scroll-btn {
+        width: 24px;
+        height: 34px;
+        font-size: 0.95rem;
+    }
+
+    /* F. Sesuaikan Posisi Tombol Zoom & Attribution di HP */
+    .leaflet-bottom.leaflet-right {
+        bottom: 88px;
+        right: 8px;
+    }
+
+    .leaflet-control-attribution {
+        font-size: 8px !important;
+        background: rgba(255, 255, 255, 0.5) !important;
+        padding: 1px 4px !important;
+        border-radius: 4px 0 0 0;
+    }
+
+    .popup-glass-body {
+        min-width: 175px;
+    }
 }
