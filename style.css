@@ -1,6 +1,3 @@
-/* ==========================================================================
-   RESET & VARIABEL TEMA (PASTEL HIJAU GRADASI + POP-UP GLASS)
-   ========================================================================== */
 * {
   margin: 0;
   padding: 0;
@@ -9,33 +6,26 @@
 }
 
 :root {
-  /* 1. Palet Utama: Pastel Hijau Gradasi Cerah (Untuk Header, Sidebar, Dock) */
   --pastel-gradient: linear-gradient(
     135deg,
-    rgba(240, 253, 244, 0.95) 0%,
+    rgba(240, 253, 244, 0.94) 0%,
     rgba(209, 250, 229, 0.92) 55%,
     rgba(167, 243, 208, 0.9) 100%
   );
   --pastel-border: #6ee7b7;
-  --pastel-shadow: 0 8px 28px rgba(6, 78, 59, 0.15);
+  --pastel-shadow: 0 8px 24px rgba(6, 78, 59, 0.18);
 
-  --text-dark: #064e3b; /* Hijau zamrud sangat gelap untuk teks utama */
-  --text-medium: #047857; /* Hijau sedang untuk sub-teks */
-  --text-soft: #059669;
-
+  --text-dark: #064e3b;
+  --text-medium: #047857;
   --emerald-primary: #10b981;
   --emerald-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  --pastel-card-bg: rgba(255, 255, 255, 0.75);
-  --pastel-card-hover: #ffffff;
 
-  /* 2. Palet Khusus Pop-up & Floating Card: Efek Glass Transparan */
   --glass-popup-bg: linear-gradient(
     135deg,
-    rgba(15, 23, 42, 0.48) 0%,
-    rgba(6, 78, 59, 0.38) 100%
+    rgba(15, 23, 42, 0.85) 0%,
+    rgba(6, 78, 59, 0.78) 100%
   );
-  --glass-popup-border: rgba(255, 255, 255, 0.42);
-  --glass-popup-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
+  --glass-popup-border: rgba(110, 231, 183, 0.45);
 
   --font-sans: "Inter", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
@@ -47,7 +37,7 @@ html {
   height: 100%;
   overflow: hidden;
   font-family: var(--font-sans);
-  background-color: #e2e8f0;
+  background-color: #0f172a;
 }
 
 #map {
@@ -56,164 +46,45 @@ html {
   z-index: 1;
 }
 
-/* ==========================================================================
-   PANEL TEMA PASTEL HIJAU GRADASI (UI NAVIGASI UTAMA)
-   ========================================================================== */
 .pastel-panel {
   background: var(--pastel-gradient);
   backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   border: 1.5px solid var(--pastel-border);
   box-shadow: var(--pastel-shadow);
   color: var(--text-dark);
   z-index: 10;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: all 0.25s ease;
 }
 
-/* ==========================================================================
-   PANEL GLASS TRANSPARAN (KHUSUS POP-UP PETA & KARTU INFORMASI)
-   ========================================================================== */
 .glass-popup-card {
   background: var(--glass-popup-bg);
-  backdrop-filter: blur(7px);
-  -webkit-backdrop-filter: blur(7px);
+  backdrop-filter: blur(10px);
   border: 1px solid var(--glass-popup-border);
-  box-shadow: var(--glass-popup-shadow);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
   color: #ffffff;
   z-index: 10;
-}
-
-/* Styling Pop-up Leaflet agar Menjadi Glass Transparan */
-.leaflet-popup-content-wrapper {
-  background: linear-gradient(
-    135deg,
-    rgba(15, 23, 42, 0.55) 0%,
-    rgba(16, 185, 129, 0.32) 100%
-  ) !important;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 12px !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35) !important;
-  color: #ffffff !important;
-  padding: 2px;
-}
-
-.leaflet-popup-tip {
-  background: rgba(15, 23, 42, 0.6) !important;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.leaflet-popup-close-button {
-  color: #ffffff !important;
-  font-size: 18px !important;
-  top: 8px !important;
-  right: 10px !important;
-}
-
-.popup-glass-body {
-  min-width: 210px;
-  padding: 6px 4px;
-  font-family: var(--font-sans);
-}
-
-.popup-badge {
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 20px;
-  margin-bottom: 6px;
-}
-
-.popup-badge.registered {
-  background: rgba(52, 211, 153, 0.25);
-  border: 1px solid #6ee7b7;
-  color: #a7f3d0;
-}
-
-.popup-badge.unregistered {
-  background: rgba(251, 191, 36, 0.25);
-  border: 1px solid #fcd34d;
-  color: #fde68a;
-}
-
-.popup-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  margin-bottom: 8px;
-  padding-bottom: 6px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  font-family: var(--font-mono);
-}
-
-.popup-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.78rem;
-  margin-bottom: 5px;
-}
-
-.popup-row span:first-child {
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.popup-row span:last-child {
-  font-weight: 600;
-  font-family: var(--font-mono);
-}
-
-.popup-empty-msg {
-  font-size: 0.8rem;
-  color: rgba(255, 255, 255, 0.85);
-  line-height: 1.4;
-  margin-top: 4px;
-}
-
-/* Siku Sudut HUD */
-.corner-brackets {
-  position: relative;
-}
-.corner-brackets::before,
-.corner-brackets::after {
-  content: "";
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  border-color: #6ee7b7;
-  border-style: solid;
-  pointer-events: none;
-}
-.corner-brackets::before {
-  top: -1px;
-  left: -1px;
-  border-width: 2px 0 0 2px;
-}
-.corner-brackets::after {
-  bottom: -1px;
-  right: -1px;
-  border-width: 0 2px 2px 0;
 }
 
 .mono {
   font-family: var(--font-mono);
 }
 
-/* ==========================================================================
-   1. TOP HEADER BAR & SCALE SWITCHER
-   ========================================================================== */
+/* 1. TOP HEADER */
 .top-header {
   position: absolute;
   top: 14px;
-  left: 88px;
-  right: 18px;
-  height: 54px;
+  left: 266px;
+  right: 16px;
+  height: 52px;
   border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 22px;
+  padding: 0 18px;
+}
+
+.left-sidebar.collapsed ~ .top-header {
+  left: 84px;
 }
 
 .brand-section {
@@ -221,20 +92,19 @@ html {
   align-items: center;
   gap: 10px;
   font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--text-dark);
+  font-size: 0.92rem;
 }
 
 .brand-logo-box {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
   background: var(--emerald-gradient);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 .brand-title .highlight {
@@ -242,54 +112,13 @@ html {
   margin-left: 4px;
 }
 
-.top-nav {
-  display: flex;
-  gap: 24px;
-  height: 100%;
-  align-items: center;
-}
-
-.nav-link {
-  color: var(--text-medium);
-  text-decoration: none;
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.8px;
-  padding: 16px 6px;
-  border-bottom: 3px solid transparent;
-  transition: 0.2s;
-}
-
-.nav-link:hover,
-.nav-link.active {
-  color: var(--text-dark);
-  border-bottom-color: var(--emerald-primary);
-}
-
-.header-meta {
-  display: flex;
-  gap: 18px;
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
-  color: var(--text-medium);
-  font-weight: 600;
-}
-
-.meta-item {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
 .scale-switcher {
-  position: absolute;
-  top: 78px;
-  left: 50%;
-  transform: translateX(-50%);
   display: flex;
-  border-radius: 10px;
-  padding: 4px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 9px;
+  padding: 3px;
   gap: 4px;
+  border: 1px solid var(--pastel-border);
 }
 
 .scale-btn {
@@ -297,30 +126,35 @@ html {
   border: none;
   color: var(--text-medium);
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 500;
-  padding: 6px 14px;
-  border-radius: 7px;
+  font-size: 0.73rem;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 6px;
   cursor: pointer;
   transition: 0.2s;
 }
 
-.scale-btn.active,
-.scale-btn:hover {
+.scale-btn.active {
   background: var(--emerald-gradient);
   color: #ffffff;
+}
+
+.header-meta {
+  display: flex;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--text-medium);
   font-weight: 600;
 }
 
-/* ==========================================================================
-   2. LEFT SIDEBAR (PASTEL HIJAU GRADASI)
-   ========================================================================== */
+/* 2. LEFT SIDEBAR */
 .left-sidebar {
   position: absolute;
   top: 14px;
   left: 14px;
   bottom: 14px;
-  width: 245px;
+  width: 238px;
   border-radius: 16px;
   display: flex;
   flex-direction: column;
@@ -329,12 +163,11 @@ html {
 }
 
 .left-sidebar.collapsed {
-  width: 62px;
+  width: 58px;
   padding: 16px 8px;
 }
 
 .left-sidebar.collapsed .sidebar-brand-text,
-.left-sidebar.collapsed .user-info,
 .left-sidebar.collapsed .menu-label,
 .left-sidebar.collapsed .menu-text,
 .left-sidebar.collapsed .badge {
@@ -342,14 +175,13 @@ html {
 }
 
 .left-sidebar.collapsed .window-dots,
-.left-sidebar.collapsed .sidebar-user,
 .left-sidebar.collapsed .menu-item {
   justify-content: center;
 }
 
 .toggle-sidebar-btn {
   position: absolute;
-  top: 38px;
+  top: 24px;
   right: -13px;
   width: 26px;
   height: 26px;
@@ -361,18 +193,12 @@ html {
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(6, 78, 59, 0.25);
-  transition: 0.25s;
-}
-
-.toggle-sidebar-btn:hover {
-  transform: scale(1.12);
 }
 
 .sidebar-header {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   padding-bottom: 12px;
   border-bottom: 1px solid rgba(16, 185, 129, 0.25);
 }
@@ -381,7 +207,6 @@ html {
   display: flex;
   gap: 6px;
 }
-
 .dot {
   width: 9px;
   height: 9px;
@@ -399,49 +224,15 @@ html {
 
 .sidebar-brand-text {
   font-weight: 800;
-  font-size: 0.82rem;
-  letter-spacing: 1.2px;
-  color: var(--text-dark);
-}
-
-.sidebar-user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 4px;
-  border-bottom: 1px solid rgba(16, 185, 129, 0.25);
-}
-
-.user-avatar {
-  width: 34px;
-  height: 34px;
-  border-radius: 8px;
-  background: var(--emerald-gradient);
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
   font-size: 0.8rem;
-  flex-shrink: 0;
-}
-
-.user-name {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text-dark);
-}
-
-.user-role {
-  font-size: 0.68rem;
-  color: var(--text-medium);
+  letter-spacing: 1px;
 }
 
 .menu-label {
-  font-size: 0.68rem;
-  letter-spacing: 1px;
+  font-size: 0.65rem;
+  letter-spacing: 0.8px;
   color: var(--text-medium);
-  margin: 14px 0 6px 8px;
+  margin: 12px 0 6px 6px;
   font-weight: 700;
 }
 
@@ -449,138 +240,75 @@ html {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
 }
 
 .bottom-menu {
   margin-top: auto;
-  padding-top: 12px;
+  padding-top: 10px;
   border-top: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 10px;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 9px;
   cursor: pointer;
-  color: var(--text-dark);
-  font-size: 0.83rem;
-  font-weight: 500;
+  font-size: 0.78rem;
+  font-weight: 600;
   transition: 0.2s;
-}
-
-.menu-item i {
-  font-size: 1.2rem;
-  color: var(--text-soft);
-}
-
-.menu-item:hover {
-  background: var(--pastel-card-hover);
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+  opacity: 0.55;
 }
 
 .menu-item.active {
-  background: var(--emerald-gradient);
-  color: #ffffff;
-  font-weight: 600;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 2px 6px rgba(6, 78, 59, 0.08);
+  opacity: 1;
 }
 
-.menu-item.active i {
-  color: #ffffff;
+.layer-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  border: 1px solid rgba(0, 0, 0, 0.25);
 }
 
 .badge {
   margin-left: auto;
   background: #065f46;
   color: #ffffff;
-  font-size: 0.68rem;
-  font-weight: 700;
-  padding: 2px 7px;
-  border-radius: 12px;
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-family: var(--font-mono);
 }
 
-.badge.secondary {
-  background: #64748b;
+.badge.danger {
+  background: #ca8a04;
 }
 
-/* ==========================================================================
-   3. FLOATING INSPECTOR CARD (TETAP EFEK GLASS TRANSPARAN)
-   ========================================================================== */
+/* 3. FLOATING INSPECTOR DI KANAN ATAS */
 .floating-inspector {
   position: absolute;
-  top: 132px;
-  left: 92px;
-  width: 275px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  top: 78px;
+  right: 16px;
+  width: 340px; /* Diperlebar dari 285px agar teks tidak terpotong */
   z-index: 10;
-  transition: left 0.3s ease;
-}
-
-.left-sidebar:not(.collapsed) ~ .floating-inspector {
-  left: 273px;
 }
 
 .detail-card {
-  padding: 14px;
-  border-radius: 12px;
-}
-
-.preview-box {
-  height: 105px;
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.38);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 12px;
-}
-
-.wireframe-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  color: #6ee7b7;
-}
-
-.wireframe-placeholder i {
-  font-size: 2.4rem;
-}
-
-.wireframe-placeholder span {
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.8px;
-}
-
-.btn-detail-corner {
-  position: absolute;
-  bottom: 8px;
-  right: 8px;
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  color: #fff;
-  font-size: 0.7rem;
-  padding: 3px 8px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.btn-detail-corner:hover {
-  background: var(--emerald-primary);
+  padding: 16px 18px;
+  border-radius: 14px;
 }
 
 .object-title-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
 .status-dot {
@@ -603,148 +331,78 @@ html {
 
 .object-id {
   font-family: var(--font-mono);
-  font-size: 0.92rem;
-  margin-left: auto;
-  color: #ffffff;
+  font-size: 0.95rem;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .object-stats {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 14px;
 }
 
 .stat-row {
   display: flex;
   justify-content: space-between;
-  font-size: 0.8rem;
+  align-items: flex-start;
+  gap: 14px; /* Memberi jarak aman antara label kiri dan nilai kanan */
+  font-size: 0.76rem;
+  padding-bottom: 6px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.12);
 }
 
 .stat-name {
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.78);
+  flex-shrink: 0;
 }
 
 .stat-val {
   font-weight: 600;
-  color: #ffffff;
+  text-align: right; /* Membuat teks nilai rata kanan dengan rapi */
+  line-height: 1.35;
 }
 
-.highlight-hak {
-  color: #fcd34d;
-}
-
-.card-tabs {
-  display: flex;
-  gap: 6px;
-}
-
-.card-tab {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid transparent;
-  color: rgba(255, 255, 255, 0.8);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  padding: 6px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.card-tab.active {
-  background: rgba(16, 185, 129, 0.35);
-  border-color: #6ee7b7;
-  color: #fff;
-  font-weight: 600;
-}
-
-.readiness-card {
-  padding: 12px 14px;
-  border-radius: 12px;
-}
-
-.bars-container {
-  display: flex;
-  gap: 4px;
-  margin-bottom: 8px;
-}
-
-.bars-container span {
-  flex: 1;
-  height: 14px;
-  background: #6ee7b7;
-  border-radius: 2px;
-}
-
-.bars-container span.dim {
-  background: rgba(255, 255, 255, 0.25);
-}
-
-.readiness-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.65rem;
-  color: rgba(255, 255, 255, 0.85);
-}
-
-/* ==========================================================================
-   4. BOTTOM DOCK PANEL (PASTEL HIJAU GRADASI)
-   ========================================================================== */
+/* 4. BOTTOM DOCK (6 TITIK KUMPUL) */
 .bottom-dock {
   position: absolute;
   bottom: 14px;
-  left: 88px;
-  right: 18px;
+  left: 266px;
+  right: 16px;
   z-index: 10;
-  transition: left 0.3s ease;
 }
 
-.left-sidebar:not(.collapsed) ~ .bottom-dock {
-  left: 270px;
-}
-
-.dock-tabs {
-  display: flex;
-  gap: 6px;
-  margin-bottom: -2px;
-  padding-left: 12px;
-}
-
-.dock-tab {
-  background: rgba(209, 250, 229, 0.85);
-  border: 1.5px solid var(--pastel-border);
-  border-bottom: none;
-  color: var(--text-medium);
-  font-family: var(--font-mono);
-  font-size: 0.74rem;
-  padding: 7px 16px;
-  border-radius: 10px 10px 0 0;
-  cursor: pointer;
-}
-
-.dock-tab.active {
-  background: var(--emerald-gradient);
-  color: #ffffff;
-  font-weight: 600;
+.left-sidebar.collapsed ~ .bottom-dock {
+  left: 84px;
 }
 
 .dock-content {
-  height: 68px;
+  height: 58px;
   border-radius: 14px;
   display: flex;
   align-items: center;
-  padding: 0 10px;
-  gap: 10px;
+  padding: 0 14px;
+  gap: 12px;
+}
+
+.dock-label {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .unit-cards-container {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   overflow-x: auto;
-  scroll-behavior: smooth;
   flex: 1;
-  padding: 6px 2px;
+  padding: 4px 0;
 }
 
 .unit-cards-container::-webkit-scrollbar {
@@ -752,68 +410,217 @@ html {
 }
 
 .unit-card {
-  background: var(--pastel-card-bg);
+  background: rgba(255, 255, 255, 0.82);
   border: 1px solid var(--pastel-border);
-  padding: 9px 14px;
-  border-radius: 9px;
+  padding: 6px 12px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-width: 195px;
+  gap: 8px;
   cursor: pointer;
-  color: var(--text-dark);
   transition: 0.2s;
+  white-space: nowrap;
 }
 
 .unit-card:hover,
 .unit-card.active {
   background: var(--emerald-gradient);
   color: #ffffff;
-  border-color: #059669;
   transform: translateY(-2px);
 }
 
 .unit-code {
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-weight: 600;
 }
 
-.unit-arrow {
-  margin-left: auto;
-  font-size: 0.9rem;
-}
-
-.scroll-btn {
-  background: var(--pastel-card-bg);
-  border: 1px solid var(--pastel-border);
-  color: var(--text-dark);
-  width: 30px;
-  height: 42px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1.1rem;
-}
-
-.scroll-btn:hover {
-  background: var(--emerald-gradient);
-  color: #ffffff;
-}
-
-/* Kontrol Zoom Kanan Bawah */
-.leaflet-bottom.leaflet-right {
-  bottom: 110px;
-  right: 16px;
-}
-
-.leaflet-bar a {
-  background: var(--pastel-gradient) !important;
-  color: var(--text-dark) !important;
-  border: 1px solid var(--pastel-border) !important;
-  font-weight: bold;
-}
-
-.leaflet-bar a:hover {
-  background: var(--emerald-gradient) !important;
+/* Pop-up Glass MapLibre */
+.maplibregl-popup-content {
+  background: var(--glass-popup-bg) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-popup-border);
+  border-radius: 10px !important;
   color: #ffffff !important;
+  padding: 10px 12px !important;
+  font-family: var(--font-sans);
+}
+
+.maplibregl-popup-close-button {
+  color: #ffffff !important;
+  font-size: 16px !important;
+  right: 6px !important;
+  top: 4px !important;
+}
+
+.btn-reset-info {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-reset-info:hover {
+  background: var(--emerald-primary);
+}
+
+/* Label Nama Desa di Atas Peta */
+.desa-label-marker {
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  white-space: nowrap;
+  pointer-events: none; /* Agar tidak menghalangi klik pada bangunan 3D di bawahnya */
+  text-shadow:
+    -1.5px -1.5px 0 #0f172a,
+    1.5px -1.5px 0 #0f172a,
+    -1.5px 1.5px 0 #0f172a,
+    1.5px 1.5px 0 #0f172a,
+    0px 2px 6px rgba(0, 0, 0, 0.85);
+  background: rgba(15, 23, 42, 0.45);
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+/* ==========================================================================
+   5. RESPONSIVE DESIGN (TABLET & SMARTPHONE / HP)
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .header-meta {
+    display: none; /* Sembunyikan teks lokasi & koordinat di tablet agar header lega */
+  }
+  .floating-inspector {
+    width: 290px;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Sidebar di HP: otomatis ringkas di kiri, dan menjadi overlay saat dibuka */
+  .left-sidebar {
+    top: 10px;
+    left: 10px;
+    bottom: 10px;
+    width: 225px;
+    z-index: 30;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  }
+
+  .left-sidebar.collapsed {
+    width: 50px;
+    padding: 12px 6px;
+  }
+
+  /* Navbar Atas di HP: selalu melebar penuh di samping sidebar kecil */
+  .top-header,
+  body.sidebar-collapsed .top-header,
+  .left-sidebar.collapsed ~ .top-header {
+    top: 10px;
+    left: 70px;
+    right: 10px;
+    height: auto;
+    min-height: 48px;
+    padding: 8px 12px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .brand-section {
+    font-size: 0.76rem;
+    line-height: 1.25;
+  }
+
+  .scale-switcher {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .scale-btn {
+    flex: 1;
+    text-align: center;
+    padding: 5px 6px;
+    font-size: 0.68rem;
+  }
+
+  /* Kartu Ringkasan/Inspector di HP: diletakkan rapi di atas dock bawah */
+  .floating-inspector {
+    top: auto;
+    bottom: 68px;
+    left: 70px;
+    right: 10px;
+    width: auto;
+    z-index: 15;
+  }
+
+  .detail-card {
+    padding: 10px 12px;
+  }
+
+  .object-id {
+    font-size: 0.82rem;
+    margin-bottom: 6px;
+    padding-bottom: 4px;
+  }
+
+  .object-stats {
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+
+  .stat-row {
+    font-size: 0.68rem;
+    padding-bottom: 3px;
+  }
+
+  /* Dock 6 Titik Kumpul di HP: bisa di-scroll horizontal dengan jari */
+  .bottom-dock,
+  body.sidebar-collapsed .bottom-dock,
+  .left-sidebar.collapsed ~ .bottom-dock {
+    bottom: 10px;
+    left: 70px;
+    right: 10px;
+  }
+
+  .dock-content {
+    height: 48px;
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .dock-label {
+    font-size: 0.65rem;
+  }
+
+  .dock-label i {
+    display: none;
+  }
+
+  .unit-card {
+    padding: 5px 9px;
+  }
+
+  .unit-code {
+    font-size: 0.68rem;
+  }
+
+  .desa-label-marker {
+    font-size: 0.62rem;
+    padding: 1px 5px;
+  }
+
+  /* Pindahkan tombol zoom (+ / -) MapLibre agar tidak tertutup kartu di HP */
+  .maplibregl-ctrl-bottom-right {
+    top: 95px !important;
+    bottom: auto !important;
+    right: 6px !important;
+  }
 }

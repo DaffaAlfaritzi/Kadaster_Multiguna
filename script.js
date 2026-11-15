@@ -1,432 +1,663 @@
 // ==========================================================================
-// 1. INISIALISASI PETA & CUSTOM PANE AGAR LAYER TIDAK TERTUMPUK
+// 1. INISIALISASI PETA 3D MAPLIBRE GL JS
 // ==========================================================================
-const map = L.map("map", {
-  center: [-5.3475, 105.3155], // Koordinat klaster bangunan_persil
-  zoom: 17,
-  zoomControl: false,
+const DARK_STYLE =
+  "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
+
+const map = new maplibregl.Map({
+  container: "map",
+  style: DARK_STYLE,
+  center: [105.315, -5.362], // Titik awal Desa Way Hui
+  zoom: 14.5,
+  pitch: 55, // Kemiringan 3D aktif
+  bearing: -15,
+  antialias: true,
 });
 
-L.control.zoom({ position: "bottomright" }).addTo(map);
+map.addControl(
+  new maplibregl.NavigationControl({ visualizePitch: true }),
+  "bottom-right",
+);
 
-// Membuat 2 Pane terpisah agar `bangunan_persil` SELALU di atas `bgn_sementara`
-map.createPane("basePane");
-map.getPane("basePane").style.zIndex = 410;
+let allBounds = null;
+let kritisBounds = null;
+let isSatellite = false;
 
-map.createPane("persilPane");
-map.getPane("persilPane").style.zIndex = 450;
+// Fungsi menghitung Bounding Box dari GeoJSON secara otomatis
+function getGeoJSONBounds(geojson) {
+  const bounds = new maplibregl.LngLatBounds();
+  const processCoords = (coords) => {
+    if (typeof coords[0] === "number") {
+      bounds.extend(coords);
+    } else {
+      coords.forEach(processCoords);
+    }
+  };
+  (geojson.features || []).forEach((f) => {
+    if (f.geometry && f.geometry.coordinates) {
+      processCoords(f.geometry.coordinates);
+    }
+  });
+  return bounds;
+}
 
-// Basemap Satelit & Peta Terang
-const basemaps = {
-  satellite: L.tileLayer(
-    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    {
-      attribution: "&copy; Esri World Imagery",
-      maxZoom: 20,
+// ==========================================================================
+// 2. MEMUAT SELURUH LAYER DARI FOLDER `data_fiks/`
+// ==========================================================================
+map.on("load", async () => {
+  // Layer 0: Basemap Satelit Esri (Disembunyikan di awal, aktif saat tombol Basemap diklik)
+  map.addSource("esri-sat", {
+    type: "raster",
+    tiles: [
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    ],
+    tileSize: 256,
+  });
+  map.addLayer({
+    id: "esri-sat-layer",
+    type: "raster",
+    source: "esri-sat",
+    layout: { visibility: "none" },
+  });
+
+  // 1. Layer Zona Gerakan Tanah (zkgt_fiks.geojson - Simbologi Field "Unsur")
+  map.addSource("zona", {
+    type: "geojson",
+    data: "data_fiks/zkgt_fiks.geojson",
+  });
+  map.addLayer({
+    id: "zona-fill",
+    type: "fill",
+    source: "zona",
+    paint: {
+      "fill-color": [
+        "case",
+        [
+          "in",
+          "menengah",
+          ["downcase", ["coalesce", ["to-string", ["get", "Unsur"]], ""]],
+        ],
+        "#fdba74", // Warna Peach/Oranye Muda untuk Menengah (sesuai Peta Lampiran 1)
+        "#fef9c3", // Warna Krem/Kuning Pucat untuk Rendah (sesuai Peta Lampiran 1)
+      ],
+      "fill-opacity": 0.35, // Transparan agar basemap/ortofoto tetap terlihat jelas
+      "fill-outline-color": "#64748b", // Garis batas tipis pemisah zona Menengah & Rendah
     },
-  ),
-  voyager: L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-    {
-      attribution: "&copy; OpenStreetMap &copy; CARTO",
-      maxZoom: 20,
+  });
+
+  // 2. Layer Buffer Aliran 15m (Biru Sian sesuai Peta 2)
+  map.addSource("buffer_aliran", {
+    type: "geojson",
+    data: "data_fiks/buffered.geojson",
+  });
+  map.addLayer({
+    id: "buffer-fill",
+    type: "fill",
+    source: "buffer_aliran",
+    paint: {
+      "fill-color": "#38bdf8",
+      "fill-opacity": 0.55,
     },
-  ),
-};
+  });
 
-let currentBasemap = "satellite";
-basemaps.satellite.addTo(map);
+  // 3. Layer Jaringan Jalan (Abu-abu sesuai Peta 3)
+  map.addSource("jalan", {
+    type: "geojson",
+    data: "data_fiks/jlan_cba.geojson",
+  });
+  map.addLayer({
+    id: "jalan-line",
+    type: "line",
+    source: "jalan",
+    paint: {
+      "line-color": "#94a3b8",
+      "line-width": 1.4,
+      "line-opacity": 0.75,
+    },
+  });
 
-// ==========================================================================
-// 2. STYLING LAYER BANGUNAN
-// ==========================================================================
+  // 4. Layer Area Titik Kumpul (Oker/Emas sesuai Peta 3)
+  map.addSource("area_kumpul", {
+    type: "geojson",
+    data: "data_fiks/titik_kumpul_area.geojson",
+  });
+  map.addLayer({
+    id: "area-kumpul-fill",
+    type: "fill",
+    source: "area_kumpul",
+    paint: {
+      "fill-color": "#ca8a04",
+      "fill-opacity": 0.75,
+    },
+  });
 
-// Style untuk bgn_sementara.geojson (Bangunan tanpa atribut kadaster)
-function styleBangunanSementara() {
-  return {
-    pane: "basePane",
-    color: "#cbd5e1",
-    weight: 1,
-    opacity: 0.7,
-    fillColor: "#64748b",
-    fillOpacity: 0.35,
-  };
-}
+  // 5. Layer 3D Bangunan Zona Rendah (Kuning Cerah sesuai Peta 1, Tinggi 3.5-3.8m PU)
+  map.addSource("bgn_rendah", {
+    type: "geojson",
+    data: "data_fiks/bgn_rendah.geojson",
+    generateId: true,
+  });
+  map.addLayer({
+    id: "bgn-rendah-3d",
+    type: "fill-extrusion",
+    source: "bgn_rendah",
+    paint: {
+      "fill-extrusion-color": "#facc15",
+      "fill-extrusion-height": 3.5,
+      "fill-extrusion-base": 0,
+      "fill-extrusion-opacity": 1,
+      "fill-extrusion-vertical-gradient": true,
+    },
+  });
 
-// Style untuk bangunan_persil.geojson (Bangunan ber-NIB & Tipe Hak)
-function styleBangunanPersil() {
-  return {
-    pane: "persilPane",
-    color: "#a7f3d0", // Garis tepi hijau mint pastel cerah
-    weight: 2,
-    opacity: 1,
-    fillColor: "#10b981", // Isi hijau zamrud cerah
-    fillOpacity: 0.55,
-  };
-}
+  // 6. Layer 3D Bangunan Zona Menengah (Oranye sesuai Peta 1, Tinggi 4.0m PU)
+  map.addSource("bgn_menengah", {
+    type: "geojson",
+    data: "data_fiks/bgn_menengah.geojson",
+    generateId: true,
+  });
+  map.addLayer({
+    id: "bgn-menengah-3d",
+    type: "fill-extrusion",
+    source: "bgn_menengah",
+    paint: {
+      "fill-extrusion-color": "#f97316",
+      "fill-extrusion-height": 3.5,
+      "fill-extrusion-base": 0,
+      "fill-extrusion-opacity": 1,
+      "fill-extrusion-vertical-gradient": true,
+    },
+  });
 
-// Style saat bangunan dipilih/diklik
-function styleSelectedBuilding(paneName) {
-  return {
-    pane: paneName,
-    color: "#ffffff",
-    weight: 3,
-    opacity: 1,
-    fillColor: "#f59e0b", // Sorotan kuning amber cerah saat aktif
-    fillOpacity: 0.75,
-  };
-}
+  // 7. Layer 3D Klaster Bangunan Kritis [891 Unit] (Merah Menyala sesuai Peta 2 & 3, Tinggi 4.0m PU)
+  map.addSource("bgn_kritis", {
+    type: "geojson",
+    data: "data_fiks/bgn_kritis.geojson",
+    generateId: true,
+  });
+  map.addLayer({
+    id: "bgn-kritis-3d",
+    type: "fill-extrusion",
+    source: "bgn_kritis",
+    paint: {
+      "fill-extrusion-color": "#ef4444",
+      "fill-extrusion-height": 3.8,
+      "fill-extrusion-base": 0,
+      "fill-extrusion-opacity": 1,
+      "fill-extrusion-vertical-gradient": true,
+    },
+  });
 
-// ==========================================================================
-// 3. MEMUAT DATA `bgn_sementara.geojson` & `bangunan_persil.geojson`
-// ==========================================================================
-let layerSementara = null;
-let layerPersil = null;
-let selectedLayer = null;
-let selectedGroup = null;
-let selectedBounds = null;
+  // 8. Layer Poin Titik Kumpul Evakuasi (Hijau sesuai Peta 3)
+  map.addSource("titik_kumpul", {
+    type: "geojson",
+    data: "data_fiks/titik_kumpul_poin.geojson",
+  });
+  map.addLayer({
+    id: "titik-kumpul-circle",
+    type: "circle",
+    source: "titik_kumpul",
+    paint: {
+      "circle-radius": 8,
+      "circle-color": "#16a34a",
+      "circle-stroke-width": 2.5,
+      "circle-stroke-color": "#ffffff",
+    },
+  });
 
-async function initWebGISData() {
-  let countSementara = 0;
-  let countPersil = 0;
+  // 9. Layer Outline Batas Desa (batas_desa.geojson)
+  map.addSource("batas_desa", {
+    type: "geojson",
+    data: "data_fiks/batas_desa.geojson",
+  });
+  map.addLayer({
+    id: "batas-desa-line",
+    type: "line",
+    source: "batas_desa",
+    paint: {
+      "line-color": "#ffffff",
+      "line-width": 2.2,
+      "line-dasharray": [3, 2], // Garis putus-putus tegas khas batas administrasi
+      "line-opacity": 0.9,
+    },
+  });
 
-  // 1. Muat bgn_sementara.geojson (Layer Bawah - Tanpa Informasi Kadaster)
+  // Muat Nama Desa & Pasang Label di Titik Tengah (Centroid) Poligon
   try {
-    const resBase = await fetch("data/bgn_sementara.geojson");
-    if (resBase.ok) {
-      const dataBase = await resBase.json();
-      const featuresBase = dataBase.features || [];
-      countSementara = featuresBase.length;
-      document.getElementById("baseCountBadge").textContent = countSementara;
-
-      layerSementara = L.geoJSON(dataBase, {
-        pane: "basePane",
-        style: styleBangunanSementara,
-        onEachFeature: (feature, layer) => {
-          const p = feature.properties || {};
-          const areaVal = p.Shape_Area
-            ? Number(p.Shape_Area).toFixed(1)
-            : estimateArea(layer);
-
-          // Pop-up Glass minimalis berisi keterangan "Tidak Ada Informasi"
-          const popupUnregistered = `
-                        <div class="popup-glass-body">
-                            <span class="popup-badge unregistered">NON-KADASTER</span>
-                            <div class="popup-title">Tidak Ada Informasi</div>
-                            <p class="popup-empty-msg">
-                                Bangunan ini belum memiliki data atribut persil (NIB & Tipe Hak belum terdaftar).
-                            </p>
-                        </div>
-                    `;
-          layer.bindPopup(popupUnregistered);
-
-          layer.on("click", () => {
-            selectBuildingFeature(layer, layerSementara, "basePane", {
-              hasCadastral: false,
-              id: "TIDAK ADA INFORMASI",
-              nib: "-",
-              tipeHak: "TIDAK ADA INFORMASI",
-              area: areaVal,
-            });
-          });
-        },
-      }).addTo(map);
+    const resDesa = await fetch("data_fiks/batas_desa.geojson");
+    if (resDesa.ok) {
+      const dataDesa = await resDesa.json();
+      renderLabelDesa(dataDesa.features || []);
     }
   } catch (err) {
-    console.warn("Gagal memuat data/bgn_sementara.geojson:", err);
+    console.warn("Gagal memuat batas_desa.geojson:", err);
   }
 
-  // 2. Muat bangunan_persil.geojson (Layer Atas - Memiliki NIB & Tipe_Hak)
+  // Fungsi memberi celah tipis antar-poligon bangunan yang berdempetan
+  function beriCelahBangunan(geojson, scale = 0.92) {
+    const shrinkRing = (ring) => {
+      let minX = Infinity,
+        maxX = -Infinity,
+        minY = Infinity,
+        maxY = -Infinity;
+      ring.forEach(([x, y]) => {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      });
+      const cx = (minX + maxX) / 2;
+      const cy = (minY + maxY) / 2;
+      return ring.map(([x, y]) => [
+        cx + (x - cx) * scale,
+        cy + (y - cy) * scale,
+      ]);
+    };
+
+    geojson.features = (geojson.features || []).map((f) => {
+      if (!f.geometry) return f;
+      if (f.geometry.type === "Polygon") {
+        f.geometry.coordinates = f.geometry.coordinates.map(shrinkRing);
+      } else if (f.geometry.type === "MultiPolygon") {
+        f.geometry.coordinates = f.geometry.coordinates.map((poly) =>
+          poly.map(shrinkRing),
+        );
+      }
+      return f;
+    });
+    return geojson;
+  }
+
+  // Hitung batas koordinat, pisahkan bangunan dempet, & buat kartu 6 Titik Kumpul
   try {
-    const resPersil = await fetch("data/bangunan_persil.geojson");
-    if (resPersil.ok) {
-      const dataPersil = await resPersil.json();
-      const featuresPersil = dataPersil.features || [];
-      countPersil = featuresPersil.length;
-      document.getElementById("persilCountBadge").textContent = countPersil;
+    const [resZona, resRendah, resKritis, resMenengah, resTK] =
+      await Promise.all([
+        fetch("data_fiks/zkgt_fiks.geojson"),
+        fetch("data_fiks/bgn_rendah.geojson"),
+        fetch("data_fiks/bgn_kritis.geojson"),
+        fetch("data_fiks/bgn_menengah.geojson"),
+        fetch("data_fiks/titik_kumpul_poin.geojson"),
+      ]);
 
-      const unitCardsList = document.getElementById("unitCardsList");
-      unitCardsList.innerHTML = "";
+    if (resZona.ok) {
+      const dataZona = await resZona.json();
+      allBounds = getGeoJSONBounds(dataZona);
+      if (!allBounds.isEmpty()) {
+        map.fitBounds(allBounds, {
+          padding: 60,
+          pitch: 55,
+          bearing: -15,
+          duration: 1200,
+        });
+      }
+    }
 
-      layerPersil = L.geoJSON(dataPersil, {
-        pane: "persilPane",
-        style: styleBangunanPersil,
-        onEachFeature: (feature, layer) => {
-          const p = feature.properties || {};
+    if (resRendah.ok) {
+      const dataRendah = await resRendah.json();
+      map.getSource("bgn_rendah").setData(beriCelahBangunan(dataRendah, 0.92));
+    }
 
-          // Ambil atribut asli dari bangunan_persil.geojson
-          const nibVal = p.NIB || "-";
-          const hakVal = p.TIPE_HAK || "HAK MILIK";
-          const objId =
-            p.OBJECTID_1 && p.OBJECTID_1 !== "0"
-              ? p.OBJECTID_1
-              : p.OBJECTID && p.OBJECTID !== "0"
-                ? p.OBJECTID
-                : p.OBJECTID_2 || "-";
-          const areaVal = p.Shape_Area
-            ? Number(p.Shape_Area).toFixed(2)
-            : estimateArea(layer);
+    if (resKritis.ok && resMenengah.ok) {
+      const dataKritis = await resKritis.json();
+      const dataMenengah = await resMenengah.json();
+      kritisBounds = getGeoJSONBounds(dataKritis);
 
-          // Pop-up Glass Transparan untuk Bangunan Persil
-          const popupRegistered = `
-                        <div class="popup-glass-body">
-                            <span class="popup-badge registered">TERDAFTAR KADASTER</span>
-                            <div class="popup-title">NIB: ${nibVal}</div>
-                            <div class="popup-row">
-                                <span>Tipe Hak</span>
-                                <span style="color:#fde68a;">${hakVal}</span>
-                            </div>
-                            <div class="popup-row">
-                                <span>Luas Bangunan</span>
-                                <span>${areaVal} m²</span>
-                            </div>
-                            <div class="popup-row">
-                                <span>ID Objek</span>
-                                <span>#${objId}</span>
-                            </div>
-                        </div>
-                    `;
-          layer.bindPopup(popupRegistered);
+      // Saring keluar bangunan kritis dari layer menengah agar tidak bertumpuk
+      const kritisKeys = new Set(
+        (dataKritis.features || []).map((f) =>
+          JSON.stringify(f.geometry.coordinates[0][0]),
+        ),
+      );
+      dataMenengah.features = (dataMenengah.features || []).filter(
+        (f) => !kritisKeys.has(JSON.stringify(f.geometry.coordinates[0][0])),
+      );
 
-          layer.on("click", (e) => {
-            L.DomEvent.stopPropagation(e);
-            selectBuildingFeature(layer, layerPersil, "persilPane", {
-              hasCadastral: true,
-              id: `#${objId}`,
-              nib: nibVal,
-              tipeHak: hakVal,
-              area: areaVal,
-            });
-          });
+      map.getSource("bgn_kritis").setData(beriCelahBangunan(dataKritis, 0.92));
+      map
+        .getSource("bgn_menengah")
+        .setData(beriCelahBangunan(dataMenengah, 0.92));
+    }
 
-          layer.on("mouseover", () => {
-            if (layer !== selectedLayer) {
-              layer.setStyle({ weight: 3, fillOpacity: 0.75 });
-            }
-          });
-          layer.on("mouseout", () => {
-            if (layer !== selectedLayer) {
-              layerPersil.resetStyle(layer);
-            }
-          });
-
-          // Buat kartu di daftar bawah hanya untuk Bangunan Persil
-          const card = document.createElement("div");
-          card.className = "unit-card";
-          card.innerHTML = `
-                        <span class="status-dot"></span>
-                        <span class="unit-code">NIB ${nibVal}</span>
-                        <i class="ri-arrow-right-up-line unit-arrow"></i>
-                    `;
-          card.addEventListener("click", () => {
-            selectBuildingFeature(layer, layerPersil, "persilPane", {
-              hasCadastral: true,
-              id: `#${objId}`,
-              nib: nibVal,
-              tipeHak: hakVal,
-              area: areaVal,
-            });
-            map.flyToBounds(layer.getBounds(), { maxZoom: 19, duration: 0.8 });
-            layer.openPopup();
-          });
-
-          layer._cardElement = card;
-          unitCardsList.appendChild(card);
-        },
-      }).addTo(map);
+    if (resTK.ok) {
+      const dataTK = await resTK.json();
+      renderTitikKumpulCards(dataTK.features || []);
     }
   } catch (err) {
-    console.warn("Gagal memuat data/bangunan_persil.geojson:", err);
+    console.warn(
+      "Pastikan server lokal berjalan di folder webgis_kadmul:",
+      err,
+    );
   }
 
-  // Fokus otomatis ke klaster bangunan_persil saat pertama kali dibuka
-  if (layerPersil && layerPersil.getLayers().length > 0) {
-    map.fitBounds(layerPersil.getBounds(), { padding: [70, 70] });
-  } else if (layerSementara && layerSementara.getLayers().length > 0) {
-    map.fitBounds(layerSementara.getBounds(), { padding: [70, 70] });
-  }
+  // Interaksi Klik pada Bangunan 3D & Titik Kumpul
+  setupMapInteractions();
+});
 
-  // Update rasio kelengkapan di kartu bawah inspector
-  if (countSementara > 0 && countPersil > 0) {
-    const pct = Math.min(100, Math.round((countPersil / countSementara) * 100));
-    document.getElementById("completenessPct").textContent = `${pct}%`;
-    document.getElementById("completenessText").textContent =
-      `${countPersil} BANGUNAN MEMILIKI ATRIBUT NIB`;
-  }
+// ==========================================================================
+// 3. DAFTAR 6 KARTU TITIK KUMPUL DI DOCK BAWAH & INTERAKSI KLIK
+// ==========================================================================
+const romawi = ["I", "II", "III", "IV", "V", "VI"];
+
+function renderTitikKumpulCards(features) {
+  const container = document.getElementById("tkCardsList");
+  container.innerHTML = "";
+
+  features.forEach((f, idx) => {
+    const p = f.properties || {};
+    const kode = `TK-${romawi[idx] || idx + 1}`;
+    const luas = Number(p.Luas_m2 || 0).toLocaleString("id-ID", {
+      maximumFractionDigits: 0,
+    });
+    const kap = Number(p.Kapasitas || 0).toLocaleString("id-ID");
+    const coords = f.geometry.coordinates;
+
+    const card = document.createElement("div");
+    card.className = "unit-card";
+    card.innerHTML = `
+      <span class="status-dot"></span>
+      <span class="unit-code">${kode} (${kap} Jiwa)</span>
+    `;
+
+    card.addEventListener("click", () => {
+      document
+        .querySelectorAll(".unit-card")
+        .forEach((c) => c.classList.remove("active"));
+      card.classList.add("active");
+
+      map.flyTo({ center: coords, zoom: 17.2, pitch: 60, duration: 1000 });
+
+      updateInspectorCard({
+        badge: "TITIK KUMPUL AMAN",
+        color: "#34d399",
+        title: `Lokasi Evakuasi ${kode}`,
+        r1: ["Zona Kerentanan", `${p.Unsur || "Rendah"} (Skor ${p.SKOR || 2})`],
+        r2: ["Luas Area Terbuka", `${luas} m²`],
+        r3: ["Daya Tampung (2m²/org)", `${kap} Jiwa`],
+        r4: ["Kode Wilayah", p.LCODE || "MB03050260"],
+      });
+
+      new maplibregl.Popup({ offset: 12 })
+        .setLngLat(coords)
+        .setHTML(
+          `
+          <div style="font-size:12px;">
+            <strong style="color:#6ee7b7;">${kode} - Titik Kumpul Aman</strong><br/>
+            Luas Lahan: <b>${luas} m²</b><br/>
+            Kapasitas: <b style="color:#fde047;">${kap} Jiwa</b>
+          </div>
+        `,
+        )
+        .addTo(map);
+    });
+
+    container.appendChild(card);
+  });
+}
+
+function setupMapInteractions() {
+  // Klik Klaster Bangunan Kritis
+  map.on("click", "bgn-kritis-3d", (e) => {
+    updateInspectorCard({
+      badge: "PRIORITAS MITIGASI",
+      color: "#ef4444",
+      title: "Klaster Bangunan Kritis",
+      r1: ["Status Zona", "Zona Menengah (Skor 2,6)"],
+      r2: ["Posisi Hidrologi", "Dalam Buffer 15m Aliran"],
+      r3: ["Total Klaster Kritis", "891 Unit (15,51%)"],
+      r4: ["Rekomendasi", "Evakuasi ke 6 Titik Kumpul"],
+    });
+    new maplibregl.Popup()
+      .setLngLat(e.lngLat)
+      .setHTML(
+        `
+        <div style="font-size:12px;">
+          <strong style="color:#ef4444;">Bangunan Kritis (Buffer 15m)</strong><br/>
+          Zona: Menengah (Skor Bobot 2,6)<br/>
+          Prioritas utama mitigasi drainase & evakuasi.
+        </div>
+      `,
+      )
+      .addTo(map);
+  });
+
+  // Klik Bangunan Menengah
+  map.on("click", "bgn-menengah-3d", (e) => {
+    // Abaikan jika titik yang diklik adalah Bangunan Kritis
+    const hitKritis = map.queryRenderedFeatures(e.point, {
+      layers: ["bgn-kritis-3d"],
+    });
+    if (hitKritis.length > 0) return;
+
+    updateInspectorCard({
+      badge: "ZONA MENENGAH",
+      color: "#f97316",
+      title: "Bangunan Terdampak Menengah",
+      r1: ["Luas Zona Menengah", "253,63 Ha"],
+      r2: ["Jumlah Bangunan", "5.746 Unit"],
+      r3: ["Kerapatan Aliran", "126,41 m/Ha"],
+      r4: ["Skor Bobot (60:40)", "2,6 (Menengah)"],
+    });
+  });
+
+  // Klik Bangunan Rendah
+  map.on("click", "bgn-rendah-3d", (e) => {
+    updateInspectorCard({
+      badge: "ZONA RENDAH",
+      color: "#facc15",
+      title: "Bangunan Terdampak Rendah",
+      r1: ["Luas Zona Rendah", "343,88 Ha"],
+      r2: ["Jumlah Bangunan", "8.405 Unit"],
+      r3: ["Kerapatan Aliran", "130,46 m/Ha"],
+      r4: ["Skor Bobot (60:40)", "2,4 (Rendah)"],
+    });
+  });
+
+  // Ubah kursor saat melewati layer interaktif
+  [
+    "bgn-kritis-3d",
+    "bgn-menengah-3d",
+    "bgn-rendah-3d",
+    "titik-kumpul-circle",
+  ].forEach((id) => {
+    map.on("mouseenter", id, () => (map.getCanvas().style.cursor = "pointer"));
+    map.on("mouseleave", id, () => (map.getCanvas().style.cursor = ""));
+  });
+}
+
+function updateInspectorCard(info) {
+  document.getElementById("detailDot").style.background = info.color;
+  document.getElementById("detailDot").style.boxShadow =
+    `0 0 8px ${info.color}`;
+  document.getElementById("detailBadge").textContent = info.badge;
+  document.getElementById("detailTitle").textContent = info.title;
+
+  document.getElementById("lblRow1").textContent = info.r1[0];
+  document.getElementById("valRow1").textContent = info.r1[1];
+  document.getElementById("lblRow2").textContent = info.r2[0];
+  document.getElementById("valRow2").textContent = info.r2[1];
+  document.getElementById("lblRow3").textContent = info.r3[0];
+  document.getElementById("valRow3").textContent = info.r3[1];
+  document.getElementById("lblRow4").textContent = info.r4[0];
+  document.getElementById("valRow4").textContent = info.r4[1];
 }
 
 // ==========================================================================
-// 4. FUNGSI UPDATE FLOATING INSPECTOR CARD (GLASS)
+// 4. TOMBOL KONTROL UI (2D/3D, LAYER TOGGLE, SIDEBAR, BASEMAP)
 // ==========================================================================
-function selectBuildingFeature(layer, groupLayer, paneName, info) {
-  if (selectedLayer && selectedGroup) {
-    selectedGroup.resetStyle(selectedLayer);
-    if (selectedLayer._cardElement)
-      selectedLayer._cardElement.classList.remove("active");
+// Toggle 2D (LOD-0) vs 3D (LOD-1)
+document.getElementById("btnLod0").addEventListener("click", function () {
+  this.classList.add("active");
+  document.getElementById("btnLod1").classList.remove("active");
+  map.easeTo({ pitch: 0, bearing: 0, duration: 800 });
+  map.setPaintProperty("bgn-rendah-3d", "fill-extrusion-height", 0);
+  map.setPaintProperty("bgn-menengah-3d", "fill-extrusion-height", 0);
+  map.setPaintProperty("bgn-kritis-3d", "fill-extrusion-height", 0);
+});
+
+document.getElementById("btnLod1").addEventListener("click", function () {
+  this.classList.add("active");
+  document.getElementById("btnLod0").classList.remove("active");
+  map.easeTo({ pitch: 55, bearing: -15, duration: 800 });
+  map.setPaintProperty("bgn-rendah-3d", "fill-extrusion-height", 3.5);
+  map.setPaintProperty("bgn-menengah-3d", "fill-extrusion-height", 3.5);
+  map.setPaintProperty("bgn-kritis-3d", "fill-extrusion-height", 3.8);
+});
+
+// Toggle On/Off Layer di Sidebar
+document.querySelectorAll(".menu-item[data-layer]").forEach((item) => {
+  item.addEventListener("click", function () {
+    const layerId = this.getAttribute("data-layer");
+    const vis = map.getLayoutProperty(layerId, "visibility");
+    if (vis === "none") {
+      map.setLayoutProperty(layerId, "visibility", "visible");
+      this.classList.add("active");
+    } else {
+      map.setLayoutProperty(layerId, "visibility", "none");
+      this.classList.remove("active");
+    }
+  });
+});
+
+// Fokus Kamera: Seluruh Wilayah (Mode Warna Peta 1: Oranye & Kuning)
+document.getElementById("btnFocusAll").addEventListener("click", function () {
+  this.classList.add("active");
+  document.getElementById("btnFocusKritis").classList.remove("active");
+  map.setPaintProperty("bgn-menengah-3d", "fill-extrusion-color", "#f97316");
+  map.setPaintProperty("bgn-rendah-3d", "fill-extrusion-color", "#facc15");
+  if (allBounds && !allBounds.isEmpty()) {
+    map.fitBounds(allBounds, {
+      padding: 60,
+      pitch: 55,
+      bearing: -15,
+      duration: 1000,
+    });
   }
+});
 
-  selectedLayer = layer;
-  selectedGroup = groupLayer;
-  selectedBounds = layer.getBounds();
+// Fokus Kamera: Klaster Kritis (Mode Warna Peta 2: Non-Kritis menjadi Abu-abu)
+document
+  .getElementById("btnFocusKritis")
+  .addEventListener("click", function () {
+    this.classList.add("active");
+    document.getElementById("btnFocusAll").classList.remove("active");
+    map.setPaintProperty("bgn-menengah-3d", "fill-extrusion-color", "#94a3b8");
+    map.setPaintProperty("bgn-rendah-3d", "fill-extrusion-color", "#cbd5e1");
+    if (kritisBounds && !kritisBounds.isEmpty()) {
+      map.fitBounds(kritisBounds, {
+        padding: 80,
+        pitch: 60,
+        bearing: -10,
+        duration: 1000,
+      });
+    }
+  });
 
-  layer.setStyle(styleSelectedBuilding(paneName));
+// Ganti Basemap Gelap / Satelit
+document.getElementById("btnSwitchBasemap").addEventListener("click", () => {
+  isSatellite = !isSatellite;
+  map.setLayoutProperty(
+    "esri-sat-layer",
+    "visibility",
+    isSatellite ? "visible" : "none",
+  );
+});
 
-  if (layer._cardElement) {
-    layer._cardElement.classList.add("active");
-    layer._cardElement.scrollIntoView({ behavior: "smooth", inline: "center" });
-  }
+// Reset Ringkasan Inspector
+document.getElementById("btnResetInfo").addEventListener("click", () => {
+  updateInspectorCard({
+    badge: "RINGKASAN ANALISIS",
+    color: "#34d399",
+    title: "Desa Way Hui (597,51 Ha)",
+    r1: ["Zona Menengah (253,63 Ha)", "Skor 2,6"],
+    r2: ["Zona Rendah (343,88 Ha)", "Skor 2,4"],
+    r3: ["Klaster Bangunan Kritis", "891 Unit"],
+    r4: ["Total Kapasitas Evakuasi", "41.902 Jiwa"],
+  });
+});
 
-  const dot = document.getElementById("detailDot");
-  const badge = document.getElementById("detailBadge");
-  const previewTag = document.getElementById("previewTag");
-
-  if (info.hasCadastral) {
-    dot.style.background = "#34d399";
-    dot.style.boxShadow = "0 0 8px #34d399";
-    badge.textContent = "TERDAFTAR";
-    badge.style.color = "#a7f3d0";
-    badge.style.background = "rgba(52, 211, 153, 0.25)";
-    previewTag.textContent = "BANGUNAN PERSIL (AKTIF)";
-    document.getElementById("detailNIB").textContent = `NIB: ${info.nib}`;
-  } else {
-    dot.style.background = "#fbbf24";
-    dot.style.boxShadow = "none";
-    badge.textContent = "TANPA ATRIBUT";
-    badge.style.color = "#fde68a";
-    badge.style.background = "rgba(251, 191, 36, 0.22)";
-    previewTag.textContent = "TIDAK ADA INFORMASI KADASTER";
-    document.getElementById("detailNIB").textContent = "NON-PERSIL";
-  }
-
-  document.getElementById("detailId").textContent = info.id;
-  document.getElementById("detailNibFull").textContent = info.nib;
-  document.getElementById("detailTipeHak").textContent = info.tipeHak;
-  document.getElementById("detailArea").textContent = `${info.area} m²`;
-}
-
-function estimateArea(layer) {
-  if (!layer.getBounds) return 0;
-  const b = layer.getBounds();
-  const w = b.getNorthEast().distanceTo(b.getNorthWest());
-  const h = b.getNorthEast().distanceTo(b.getSouthEast());
-  return (w * h * 0.65).toFixed(1);
-}
-
-// ==========================================================================
-// 5. EVENT LISTENER NAVIGASI & TOMBOL SIDEBAR
-// ==========================================================================
+// Buka/Tutup Sidebar (Sinkron dengan Header & Dock + Otomatis Kecil di HP)
 const sidebar = document.getElementById("sidebar");
-const toggleBtn = document.getElementById("toggleSidebar");
 const toggleIcon = document.getElementById("toggleIcon");
 
-toggleBtn.addEventListener("click", () => {
-  sidebar.classList.toggle("collapsed");
-  toggleIcon.className = sidebar.classList.contains("collapsed")
+function setSidebarCollapsed(isCollapsed) {
+  sidebar.classList.toggle("collapsed", isCollapsed);
+  document.body.classList.toggle("sidebar-collapsed", isCollapsed);
+  toggleIcon.className = isCollapsed
     ? "ri-arrow-right-s-line"
     : "ri-arrow-left-s-line";
-});
-
-// Fokus ke Bangunan Persil
-document.getElementById("btnZoomPersil").addEventListener("click", () => {
-  if (layerPersil && layerPersil.getLayers().length > 0) {
-    map.flyToBounds(layerPersil.getBounds(), {
-      padding: [70, 70],
-      duration: 1,
-    });
-  }
-});
-
-// Fokus ke Semua Bangunan (bgn_sementara)
-document.getElementById("btnZoomAll").addEventListener("click", () => {
-  if (layerSementara && layerSementara.getLayers().length > 0) {
-    map.flyToBounds(layerSementara.getBounds(), {
-      padding: [70, 70],
-      duration: 1,
-    });
-  }
-});
-
-// Toggle Layer Bangunan Persil
-let persilVisible = true;
-document
-  .getElementById("btnTogglePersil")
-  .addEventListener("click", function () {
-    if (!layerPersil) return;
-    if (persilVisible) {
-      map.removeLayer(layerPersil);
-      this.style.opacity = "0.5";
-    } else {
-      map.addLayer(layerPersil);
-      this.style.opacity = "1";
-    }
-    persilVisible = !persilVisible;
-  });
-
-// Toggle Layer Bangunan Sementara
-let baseVisible = true;
-document.getElementById("btnToggleBase").addEventListener("click", function () {
-  if (!layerSementara) return;
-  if (baseVisible) {
-    map.removeLayer(layerSementara);
-    this.style.opacity = "0.5";
-  } else {
-    map.addLayer(layerSementara);
-    this.style.opacity = "1";
-  }
-  baseVisible = !baseVisible;
-});
-
-// Ganti Basemap
-document.getElementById("btnSwitchBasemap").addEventListener("click", () => {
-  if (currentBasemap === "satellite") {
-    map.removeLayer(basemaps.satellite);
-    basemaps.voyager.addTo(map);
-    currentBasemap = "voyager";
-  } else {
-    map.removeLayer(basemaps.voyager);
-    basemaps.satellite.addTo(map);
-    currentBasemap = "satellite";
-  }
-});
-
-// Reset Sorotan
-document.getElementById("btnResetSelection").addEventListener("click", () => {
-  if (selectedLayer && selectedGroup) {
-    selectedGroup.resetStyle(selectedLayer);
-    if (selectedLayer._cardElement)
-      selectedLayer._cardElement.classList.remove("active");
-  }
-  map.closePopup();
-});
-
-// Perbesar ke Bangunan yang Dipilih
-document.getElementById("btnZoomSelected").addEventListener("click", () => {
-  if (selectedBounds) {
-    map.flyToBounds(selectedBounds, { maxZoom: 20, duration: 0.7 });
-  }
-});
-
-// Scroll Daftar Kartu di Bawah
-const cardsContainer = document.getElementById("unitCardsList");
-document.getElementById("scrollLeft").addEventListener("click", () => {
-  cardsContainer.scrollBy({ left: -240, behavior: "smooth" });
-});
-document.getElementById("scrollRight").addEventListener("click", () => {
-  cardsContainer.scrollBy({ left: 240, behavior: "smooth" });
-});
-
-// Jam Realtime
-function updateClock() {
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString("id-ID", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  document.getElementById("live-clock").innerHTML =
-    `<i class="ri-time-fill"></i> ${timeStr} WIB`;
 }
-setInterval(updateClock, 1000);
-updateClock();
 
-// Jalankan saat halaman siap
-initWebGISData();
+document.getElementById("toggleSidebar").addEventListener("click", () => {
+  setSidebarCollapsed(!sidebar.classList.contains("collapsed"));
+});
+
+// Jika dibuka di layar HP (<= 768px), otomatis kecilkan sidebar di awal
+if (window.innerWidth <= 768) {
+  setSidebarCollapsed(true);
+}
+
+// Koordinat Realtime Mengikuti Pergerakan Mouse
+const coordDisplay = document.getElementById("live-clock");
+coordDisplay.innerHTML = `<i class="ri-crosshair-2-line"></i> -5.36200, 105.31500`;
+
+map.on("mousemove", (e) => {
+  const lat = e.lngLat.lat.toFixed(5);
+  const lng = e.lngLat.lng.toFixed(5);
+  coordDisplay.innerHTML = `<i class="ri-crosshair-2-line"></i> ${lat}, ${lng}`;
+});
+
+// ==========================================================================
+// 5. FUNGSI LABEL NAMA DESA OTOMATIS & TOGGLE ON/OFF
+// ==========================================================================
+const desaMarkers = [];
+
+function getPolygonCentroid(coords) {
+  // Mengambil ring terluar dari Polygon atau MultiPolygon
+  const ring = Array.isArray(coords[0][0][0]) ? coords[0][0] : coords[0];
+  let area = 0,
+    cx = 0,
+    cy = 0;
+  for (let i = 0, len = ring.length, j = len - 1; i < len; j = i++) {
+    const [x0, y0] = ring[j];
+    const [x1, y1] = ring[i];
+    const f = x0 * y1 - x1 * y0;
+    area += f;
+    cx += (x0 + x1) * f;
+    cy += (y0 + y1) * f;
+  }
+  if (area === 0) return ring[0];
+  return [cx / (3 * area), cy / (3 * area)];
+}
+
+function renderLabelDesa(features) {
+  features.forEach((f) => {
+    if (!f.geometry || !f.geometry.coordinates) return;
+    const p = f.properties || {};
+    // Membaca kolom nama desa dari standar RBI (NAMOBJ / WADMKD / DESA)
+    const namaDesa =
+      p.NAMOBJ || p.WADMKD || p.DESA || p.Nama_Desa || p.nama || "";
+    if (!namaDesa) return;
+
+    const center = getPolygonCentroid(f.geometry.coordinates);
+    const el = document.createElement("div");
+    el.className = "desa-label-marker";
+    el.textContent = namaDesa;
+
+    const marker = new maplibregl.Marker({ element: el, anchor: "center" })
+      .setLngLat(center)
+      .addTo(map);
+
+    desaMarkers.push(marker);
+  });
+}
+
+// Sinkronkan tampil/sembunyi label nama desa dengan tombol Batas Desa di Sidebar
+const btnToggleDesa = document.getElementById("btnToggleDesa");
+if (btnToggleDesa) {
+  btnToggleDesa.addEventListener("click", function () {
+    const isVisible = this.classList.contains("active");
+    desaMarkers.forEach((m) => {
+      m.getElement().style.display = isVisible ? "block" : "none";
+    });
+  });
+}
